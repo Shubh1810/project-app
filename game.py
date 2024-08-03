@@ -1,8 +1,3 @@
-import random
-import datetime
-import os
-import requests
-
 import json
 import os
 import tkinter as tk
