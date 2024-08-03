@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Plaid Integration</title>
+    <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+    <script>
+        async function fetchLinkToken() {
+            const response = await fetch('/plaid/create_link_token', { method: 'POST' });
+            const data = await response.json();
+            return data.link_token;
+        }
+
+        function handleOnSuccess(public_token, metadata) {
+            // Send the public_token to the server
+            fetch('/plaid/exchange_public_token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ public_token })
+            }).then(response => response.json())
+            .then(data => console.log('Access Token:', data.access_token));
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            const linkToken = await fetchLinkToken();
+            const handler = Plaid.create({
+                token: linkToken,
+                onSuccess: handleOnSuccess,
+                // Optionally specify other handlers like onExit, onEvent, etc.
+            });
+
+            document.getElementById('link-button').addEventListener('click', function() {
+                handler.open();
+            });
+        });
+    </script>
+</head>
+<body>
+    <button id="link-button">Link Bank Account</button>
+</body>
+</html>
