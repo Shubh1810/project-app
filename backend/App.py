@@ -52,6 +52,7 @@ from plaid.model.statements_list_request import StatementsListRequest
 from plaid.model.link_token_create_request_statements import LinkTokenCreateRequestStatements
 from plaid.model.statements_download_request import StatementsDownloadRequest
 from plaid.api import plaid_api
+import certifi
 
 load_dotenv()
 
@@ -64,6 +65,10 @@ PLAID_SECRET = os.getenv('PLAID_SECRET')
 PLAID_ENV = os.getenv('PLAID_ENV', 'sandbox')
 PLAID_PRODUCTS = os.getenv('PLAID_PRODUCTS', 'transactions').split(',')
 PLAID_COUNTRY_CODES = os.getenv('PLAID_COUNTRY_CODES', 'US').split(',')
+
+print(f"PLAID_CLIENT_ID: {PLAID_CLIENT_ID}")
+print(f"PLAID_SECRET: {PLAID_SECRET}")
+print(f"PLAID_ENV: {PLAID_ENV}")
 
 
 def empty_to_none(field):
@@ -87,7 +92,8 @@ configuration = plaid.Configuration(
         'clientId': PLAID_CLIENT_ID,
         'secret': PLAID_SECRET,
         'plaidVersion': '2020-09-14'
-    }
+    },
+    ssl_ca_cert=certifi.where()
 )
 
 api_client = plaid.ApiClient(configuration)
@@ -189,9 +195,11 @@ def create_link_token_for_payment():
 @app.route('/api/create_link_token', methods=['POST'])
 def create_link_token():
     try:
+        # Debugging print statement before creating link token
+        print("Creating Link Token Request...")
         request = LinkTokenCreateRequest(
             products=products,
-            client_name="Plaid Quickstart",
+            client_name="Shubh RandiChodu",
             country_codes=list(map(lambda x: CountryCode(x), PLAID_COUNTRY_CODES)),
             language='en',
             user=LinkTokenCreateRequestUser(
@@ -208,6 +216,12 @@ def create_link_token():
             request['statements']=statements
     # create link token
         response = client.link_token_create(request)
+        # Debugging print statement after receiving link token response
+        print("Link Token Response:", response.to_dict())
+
+        # Ensure link_token is in the response
+        if 'link_token' not in response.to_dict():
+            raise Exception("link_token not found in response")
         return jsonify(response.to_dict())
     except plaid.ApiException as e:
         print(e)
@@ -220,15 +234,19 @@ def create_link_token():
 
 
 @app.route('/api/set_access_token', methods=['POST'])
-def get_access_token():
+def set_access_token():
     global access_token
     global item_id
     global transfer_id
     public_token = request.form['public_token']
     try:
+        # Debugging print statement before exchanging public token
+        print("Exchanging Public Token for Access Token...")
         exchange_request = ItemPublicTokenExchangeRequest(
             public_token=public_token)
         exchange_response = client.item_public_token_exchange(exchange_request)
+        # Debugging print statement after receiving access token response
+        print("Access Token Response:", exchange_response.to_dict())
         access_token = exchange_response['access_token']
         item_id = exchange_response['item_id']
         return jsonify(exchange_response.to_dict())
@@ -577,22 +595,6 @@ def signal():
         error_response = format_error(e)
         return jsonify(error_response)
 
-
-# This functionality is only relevant for the UK Payment Initiation product.
-# Retrieve Payment for a specified Payment ID
-
-
-@app.route('/api/payment', methods=['GET'])
-def payment():
-    global payment_id
-    try:
-        request = PaymentInitiationPaymentGetRequest(payment_id=payment_id)
-        response = client.payment_initiation_payment_get(request)
-        pretty_print_response(response.to_dict())
-        return jsonify({'error': None, 'payment': response.to_dict()})
-    except plaid.ApiException as e:
-        error_response = format_error(e)
-        return jsonify(error_response)
 
 
 # Retrieve high-level information about an Item
