@@ -12,7 +12,7 @@ export default function Page() {
         <Layout>
             <div className="container mx-auto px-4 py-6">
                 <h1 className="text-4xl font-bold text-center">Welcome to the Rand Co-Pilot Page</h1>
-                <p>Please link Bank account to continue.</p>
+                <p>Please link Bank account to continue!.</p>
     
                 <LinkBankAccount />
                 
