@@ -86,8 +86,19 @@ def empty_to_none(field):
 # at https://dashboard.plaid.com/team/api.
 PLAID_REDIRECT_URI = empty_to_none('PLAID_REDIRECT_URI')
 
+if not PLAID_CLIENT_ID or not PLAID_SECRET:
+    raise ValueError("Missing PLAID_CLIENT_ID or PLAID_SECRET environment variables")
+
+# Map PLAID_ENV to Plaid Environment
+plaid_env_map = {
+    'sandbox': plaid.Environment.Sandbox,
+    'development': plaid.Environment.Sandbox,  # Using Sandbox for development
+    'production': plaid.Environment.Production
+}
+
+
 configuration = plaid.Configuration(
-    host = plaid.Environment.Sandbox,
+    host = plaid_env_map.get(PLAID_ENV, plaid.Environment.Sandbox),
     api_key={
         'clientId': PLAID_CLIENT_ID,
         'secret': PLAID_SECRET,
@@ -199,7 +210,7 @@ def create_link_token():
         print("Creating Link Token Request...")
         request = LinkTokenCreateRequest(
             products=products,
-            client_name="Shubh RandiChodu",
+            client_name="Shubh Co-pilot",
             country_codes=list(map(lambda x: CountryCode(x), PLAID_COUNTRY_CODES)),
             language='en',
             user=LinkTokenCreateRequestUser(
@@ -234,12 +245,19 @@ def create_link_token():
 
 
 @app.route('/api/set_access_token', methods=['POST'])
-def set_access_token():
+def get_access_token():
     global access_token
     global item_id
     global transfer_id
-    public_token = request.form['public_token']
+    
     try:
+        # Parse the incoming JSON request data
+        data = request.get_json()
+        print("Request data received:", data)  # Log the incoming request data
+
+        public_token = data.get('public_token')
+        if not public_token:
+            raise ValueError("Missing public_token")
         # Debugging print statement before exchanging public token
         print("Exchanging Public Token for Access Token...")
         exchange_request = ItemPublicTokenExchangeRequest(
@@ -251,7 +269,16 @@ def set_access_token():
         item_id = exchange_response['item_id']
         return jsonify(exchange_response.to_dict())
     except plaid.ApiException as e:
-        return json.loads(e.body)
+        error_response = json.loads(e.body)
+        print("Plaid API Error:", error_response)
+        return jsonify({'error': error_response}), 400
+    except Exception as e:
+        error_message = str(e)
+        print("Error exchanging public token:", error_message)
+        # Print stack trace for debugging
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': error_message}), 400
 
 
 # Retrieve ACH or ETF account numbers for an Item

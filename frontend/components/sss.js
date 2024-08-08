@@ -1,10 +1,12 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { usePlaidLink } from 'react-plaid-link';
+import BalanceDisplay from './BalanceDisplay';
 
 const LinkBankAccount = () => {
   const [linkToken, setLinkToken] = useState(null);
   const [error, setError] = useState(null);
+  const [balance, setBalance] = useState(null);
 
   useEffect(() => {
     const createLinkToken = async () => {
@@ -52,26 +54,74 @@ const LinkBankAccount = () => {
     createLinkToken();
   }, []);
 
+
+  const fetchBalance = async () => {
+    console.log("Fetching balance...");
+    try {
+        const response = await fetch('http://localhost:8000/api/balance', {
+            method: 'GET',
+        });
+
+        console.log('Balance API response received:', response);
+
+        const data = await response.json();
+        console.log('Balance Response:', JSON.stringify(data));
+
+        if (!response.ok) {
+            console.error('Failed to fetch balance:', data);
+            throw new Error(data.error);
+        }
+
+        const accounts = data.accounts;
+        if (accounts && accounts.length > 0) {
+            const availableBalance = accounts[0].balances.available;
+            console.log("Available Balance:", availableBalance);
+            return availableBalance;
+        } else {
+            throw new Error('No accounts found');
+        }
+    } catch (error) {
+        console.error('Error fetching balance:', error);
+        setError('Failed to fetch balance. Please try again later.');
+        return null;
+    }
+};
+
+
+
   const onSuccess = async (publicToken, metadata) => {
     console.log('Public Token:', publicToken);
     console.log('Account ID:', metadata.account_id);
     try {
+      const payload = { public_token: publicToken };
+      console.log('Sending payload to backend:', payload);
+
       const response = await fetch('http://localhost:8000/api/set_access_token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json', // Ensure this matches the content being sent
         },
-        body: JSON.stringify({ public_token: publicToken }),
+        body: JSON.stringify(payload),
       });
       if (!response.ok) {
-        throw new Error('Failed to exchange public token');
+        const responseData = await response.json();
+        console.error('Failed to exchange public token:', responseData);
+        throw new Error(responseData.error);
       }
+      
+      const data = await response.json();
+      console.log('Exchange Response:', JSON.stringify(data));
+      const availableBalance = await fetchBalance();
+            if (availableBalance !== null) {
+                setBalance(availableBalance);
+            }
       // Handle successful token exchange (e.g., navigate to a dashboard)
     } catch (error) {
       console.error('Error exchanging public token:', error);
       setError('Failed to link your account. Please try again later.');
     }
   };
+
 
   const { open, ready, error: plaidError } = usePlaidLink({
     token: linkToken,
@@ -87,9 +137,11 @@ const LinkBankAccount = () => {
 
   return (
     <div>
+          
       <button className="button" id="link-button" onClick={open} disabled={!ready || !linkToken}>
         Link Bank Account
       </button>
+      <BalanceDisplay balance={balance} /> {/* Pass balance state to BalanceDisplay */}  
       {error && <p className="error">{error}</p>}
     </div>
   );

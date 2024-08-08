@@ -25,9 +25,9 @@ const Navbar = () => {
       <nav className="navbar">
         <div className="nav-logo">Shubh Sheth</div>
         <div className="button-container">
-          <button onClick={addExpense} className="button">Add Expense</button>
-          <button onClick={editExpense} className="button">Edit Expense</button>
-          <button onClick={loadExpenses} className="button">Load Expenses</button>
+          <button onClick={addExpense} className="button">Deposit</button>
+          <button onClick={editExpense} className="button">Transfer</button>
+          <button onClick={loadExpenses} className="button">Withdraw</button>
           <button onClick={generateReport} className="button">Generate Report</button>
         </div>
       </nav>
