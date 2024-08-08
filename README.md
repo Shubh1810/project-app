@@ -21,14 +21,14 @@ project/
 │       └── test_transactions.py (Unit tests for transactions)
 │
 ├── frontend/
-│   ├── pages/
-│   │   ├── index.js (Home/Dashboard page)
+│   ├── app/
+│   │   ├── page.js (Home/Dashboard page)
 │   │   ├── transactions.js (Transactions list page)
 │   │   ├── _app.js (Custom App component for global state/layout)
 │   │
 │   ├── components/
 │   │   ├── Navbar.js (Navigation component)
-│   │   ├── TransactionForm.js (Form component for adding transactions)
+│   │   ├── LinkAccount.js (Form component for adding transactions)
 │   │   ├── TransactionList.js (Component to display list of transactions)
 │   │
 │   ├── styles/
