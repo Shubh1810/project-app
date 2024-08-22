@@ -38,7 +38,7 @@ p {
 }
 
 /* Navbar specific styles */
-.navbar {
+.dashboard {
   background-color: #4710ae;
   color: white;
 }
@@ -80,7 +80,7 @@ strong {
 .balance-display {
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 15vh;
   text-align: center;
   font-family: 'Arial', sans-serif;
 }
@@ -96,7 +96,79 @@ strong {
   text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00, 0 0 40px #00ff00;
 }
 
+.chart-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #2c3e50;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 .error {
   color: red;
   margin-top: 10px;
 }
+
+.bot-status {
+  background-color: #f8f8f8;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.bot-control {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.bot-control button {
+  width: 48%;
+  padding: 10px;
+  font-size: 16px;
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.bot-control button:hover {
+  background-color: #005bb5;
+}
+
+.bot-logs {
+  background-color: #f8f8f8;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.bot-logs ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.bot-logs li {
+  padding: 5px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.bot-logs li:last-child {
+  border-bottom: none;
+}
+
+.chartContainer {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #003561;
+  border-radius: 8px;
+  box-shadow: 0 10px 100px rgba(255, 0, 0, 0.1);
+}
+
+

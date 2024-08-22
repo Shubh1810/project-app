@@ -1,10 +1,10 @@
 // components/Layout.js
-import Navbar from './Navbar';
+import Dashboard from './Dashboard';
 
 const Layout = ({ children }) => {
     return (
         <>
-            <Navbar />
+            <Dashboard />
             <main className="min-h-screen bg-gray-50">
                 {children}
             </main>
