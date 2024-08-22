@@ -43,6 +43,6 @@ project/
 │   ├── next.config.js (Next.js configuration)
 │   └── package.json (NPM dependencies)
 │
-├── .env (Environment variables for both backend and frontend)
+├── .env (API KEYS)
 ├── .gitignore (Files to be ignored by Git)
 ├── README.md (Project documentation)
